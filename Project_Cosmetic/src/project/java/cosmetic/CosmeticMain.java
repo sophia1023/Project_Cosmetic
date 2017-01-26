@@ -6,12 +6,17 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
@@ -25,6 +30,7 @@ public class CosmeticMain {
 	private JFrame frame;
 	private JPanel selectPanel = new JPanel();
 	private JPanel resultPanel = new JPanel();
+	private ImgPanel insert_ImgPanel = new ImgPanel();
 	
 	private Color c_panel = new Color(200,221,242);
 	private JTextField textField;
@@ -32,6 +38,10 @@ public class CosmeticMain {
 	private JTextField cos_Com;
 	private JTextField cos_Cate;
 	private JTextField cos_Ingre;
+	
+	public String path;
+	public String fileName;
+	public String image;
 	
 	/**
 	 * Launch the application.
@@ -142,17 +152,23 @@ public class CosmeticMain {
 		textField.setBounds(128, 27, 380, 27);
 		insertPanel.add(textField);
 		
+		
 		JButton file_Btn = new JButton("파일검색");
+		file_Btn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				findImage();
+				showImage();
+			}
+		});
 		file_Btn.setFont(new Font("210 카툰스토리 L", Font.PLAIN, 20));
 		file_Btn.setBounds(520, 27, 113, 28);
 		insertPanel.add(file_Btn);
-		
-		ImgPanel insert_ImgPanel = new ImgPanel();
+			
 		//insert_ImgPanel.setBackground(c_panel);
 		insert_ImgPanel.setBorder(new LineBorder(c_panel));
 		insert_ImgPanel.setBounds(30, 88, 290, 393);
 		insertPanel.add(insert_ImgPanel);
-		
+			
 		JTextArea cos_Title = new JTextArea();
 		cos_Title.setText("화장품 명");
 		cos_Title.setFont(new Font("210 카툰스토리 L", Font.BOLD, 20));
@@ -220,7 +236,19 @@ public class CosmeticMain {
 	
 	private void showImage() {
 	
+		insert_ImgPanel.setImage(path);
 		
+	}
+	
+	private String findImage(){
+		
+		JFileChooser fc = new JFileChooser();
+		int result = fc.showOpenDialog(frame);
+		if(result == JFileChooser.APPROVE_OPTION){
+			path = fc.getSelectedFile().getPath();
+		}
+			
+		return path;
 	}
 }
 
