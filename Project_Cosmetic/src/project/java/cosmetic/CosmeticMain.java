@@ -8,13 +8,17 @@ import java.awt.Font;
 
 import java.awt.image.*;
 import java.io.*;
+import java.util.ArrayList;
+
 import javax.imageio.*;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
@@ -27,13 +31,20 @@ import javax.swing.JScrollPane;
 
 public class CosmeticMain {
 
+	private CosmeticDAO dao;
+	private CosmeticVO cvo;
+	private IngredientsVO ivo;
 	private JFrame frame;
 	private JPanel selectPanel = new JPanel();
 	private JPanel resultPanel = new JPanel();
+	private ImgPanel select_ImgPanel = new ImgPanel();
 	private ImgPanel insert_ImgPanel = new ImgPanel();
 	
 	private Color c_panel = new Color(200,221,242);
+	private JTextField find_Field;
 	private JTextField textField;
+	private JTextArea result_field;
+	//private JTextArea textArea;
 	private JTextField cos_Name;
 	private JTextField cos_Com;
 	private JTextField cos_Cate;
@@ -63,6 +74,7 @@ public class CosmeticMain {
 	 * Create the application.
 	 */
 	public CosmeticMain() {
+		dao = CosmeticDAOImple.getInstance();
 		initialize();
 	}
 
@@ -90,7 +102,7 @@ public class CosmeticMain {
 		find_Title.setBackground(c_panel);
 		selectPanel.add(find_Title);	
 		
-		JTextField find_Field = new JTextField();
+		find_Field = new JTextField();
 		find_Field.setBounds(144, 27, 380, 27);
 		selectPanel.add(find_Field);
 		find_Field.setColumns(10);
@@ -99,7 +111,8 @@ public class CosmeticMain {
 		find_Btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				showPanel();
-				showImage();
+				showCos();
+				showIngre();
 			}
 		});
 		
@@ -120,20 +133,18 @@ public class CosmeticMain {
 		textArea.setBackground(new Color(200, 221, 242));
 		resultPanel.add(textArea);
 		
-		ImgPanel select_ImgPanel = new ImgPanel();
-		//select_ImgPanel.setBackground(c_panel);
-		select_ImgPanel.setBounds(31, 45, 290, 393);
+		select_ImgPanel.setBackground(c_panel);
 		select_ImgPanel.setBorder(new LineBorder(c_panel));
+		select_ImgPanel.setBounds(31, 45, 290, 393);		
 		resultPanel.add(select_ImgPanel);
 		
-		JScrollPane rPane = new JScrollPane();
-		//rPane.setBorder(new LineBorder(c_panel));
+		result_field = new JTextArea();
+		result_field.setBackground(c_panel);
+		
+		JScrollPane rPane = new JScrollPane(result_field, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		rPane.setBorder(new LineBorder(c_panel));
 		rPane.setBounds(346, 45, 385, 393);
 		resultPanel.add(rPane);
-		
-		JTextArea result_field = new JTextArea();
-		result_field.setBackground(c_panel);
-		rPane.setViewportView(result_field);
 		
 		JPanel insertPanel = new JPanel();
 		insertPanel.setBackground(c_panel);
@@ -151,7 +162,6 @@ public class CosmeticMain {
 		textField.setColumns(10);
 		textField.setBounds(128, 27, 380, 27);
 		insertPanel.add(textField);
-		
 		
 		JButton file_Btn = new JButton("파일검색");
 		file_Btn.addActionListener(new ActionListener() {
@@ -217,11 +227,16 @@ public class CosmeticMain {
 		insertPanel.add(iPane);
 		
 		cos_Ingre = new JTextField();
-		cos_Ingre.setColumns(10);
+		cos_Ingre.setColumns(500);
 		cos_Ingre.setBounds(354, 252, 375, 187);
 		insertPanel.add(cos_Ingre);
 		
 		JButton insert_Btn = new JButton("화장품 등록");
+		insert_Btn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				insertCos();
+			}
+		});
 		insert_Btn.setFont(new Font("210 카툰스토리 L", Font.PLAIN, 20));
 		insert_Btn.setBounds(607, 453, 123, 28);
 		insertPanel.add(insert_Btn);
@@ -230,26 +245,100 @@ public class CosmeticMain {
 		
     }
 	
-	private void showPanel() {
-		resultPanel.setVisible(true);
-	}
-	
-	private void showImage() {
-	
-		insert_ImgPanel.setImage(path);
-		
-	}
-	
 	private String findImage(){
 		
 		JFileChooser fc = new JFileChooser();
 		int result = fc.showOpenDialog(frame);
 		if(result == JFileChooser.APPROVE_OPTION){
 			path = fc.getSelectedFile().getPath();
+			fileName = fc.getSelectedFile().getName();
 		}
 			
 		return path;
 	}
+	
+	private void insertCos() {
+		String name = cos_Name.getText();
+		String company = cos_Com.getText();
+		String category = cos_Cate.getText();
+		String ingredients = cos_Ingre.getText();
+		
+		if(!name.equals("") && !company.equals("") && !category.equals("") && !ingredients.equals("")) {
+			cvo = new CosmeticVO(name,company,category,ingredients);
+			System.out.println(cvo);
+		} else {
+			JOptionPane.showConfirmDialog(frame, "등록 실패!", "확인메세지", 3);
+			System.out.println("등록 실패");
+		}
+
+		int result1 = dao.insert_Cos(cvo);
+		int result2 = 0 ;
+		try {
+			result2 = dao.insert_CosImge(cvo,path,fileName);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (result1 <= 0 && result2 <= 0) {
+			JOptionPane.showConfirmDialog(frame, "등록 실패!", "확인메세지", 3);
+			System.out.println("등록 실패");
+		} else {
+			JOptionPane.showMessageDialog(frame, "등록 성공!", "확인메세지", 1);
+			System.out.println("등록 성공!");
+		}
+		 clearInsertPane();
+	}
+	
+	private void clearInsertPane(){
+		cos_Name.setText("");
+		cos_Com.setText("");
+		cos_Cate.setText("");
+		cos_Ingre.setText("");
+		  
+		insert_ImgPanel.bi = null;
+		insert_ImgPanel.reBi = null;
+        insert_ImgPanel.repaint();
+	}
+	
+	private void showImage() {
+		insert_ImgPanel.setImage(path);
+	}
+	
+	private void showPanel() {
+		resultPanel.setVisible(true);
+	}
+	
+	private void showCos() {
+		String name = find_Field.getText();
+		cvo = dao.select_Cos(name);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(cvo);
+		result_field.setText(buffer.toString());
+		
+		try {
+			BufferedImage bi = dao.select_cosImge(name);
+			select_ImgPanel.bi = bi;
+			select_ImgPanel.setImage2(bi);
+			select_ImgPanel.repaint();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void showIngre(){
+		ArrayList<IngredientsVO> list = new ArrayList<>();
+		ArrayList<IngredientsVO> clist = new ArrayList<>();
+		ArrayList<IngredientsVO> hlist = new ArrayList<>();
+		ArrayList<IngredientsVO> alist = new ArrayList<>();
+		StringBuffer buffer = new StringBuffer();
+		
+		String[] ingre = cvo.getCos_Ingre().split(",");
+		list = dao.select_Ingre(ingre);
+		//System.out.println(list.size());
+	}
+	
 }
 
 

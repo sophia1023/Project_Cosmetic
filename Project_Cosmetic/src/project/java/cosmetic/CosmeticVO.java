@@ -50,7 +50,7 @@ public class CosmeticVO {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "☆ 화장품 명 : " + cos_Name + "\n ☆ 회사 명 : " + cos_Com + "\n ☆ 카테고리 : " + cos_Cate;
+		return "☆ 화장품 명 : " + cos_Name + "\n☆ 회사 명 : " + cos_Com + "\n☆ 카테고리 : " + cos_Cate;
 	}
 
 	

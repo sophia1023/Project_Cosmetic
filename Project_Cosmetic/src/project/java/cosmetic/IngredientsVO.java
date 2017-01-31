@@ -77,5 +77,11 @@ public class IngredientsVO {
 	public void setTop20(int top20) {
 		this.top20 = top20;
 	}
+	
+	@Override
+	public String toString() {
+		return "☆ 성분 명 : " + ingre + "\n☆ EWG 등급 : " + ewg + "\n☆ 기능 : " + function 
+				 + "\n☆ 사용 품목 : " + use  + "\n☆ 부작용 : " + effect;
+	}
 		
 }
