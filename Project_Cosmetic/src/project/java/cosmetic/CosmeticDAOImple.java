@@ -23,8 +23,11 @@ public class CosmeticDAOImple implements CosmeticDAO, OracleQuary {
 	// singletone 디자인 패턴 적용
 	private static CosmeticDAOImple instance = null;
 	private static CosmeticVO cvo;
+	private static ImageVO imvo;
 	private static BufferedImage bi;
-	private static ArrayList<IngredientsVO> list;
+	private static ArrayList<CosmeticVO> cos_list = new ArrayList<>();
+	private static ArrayList<IngredientsVO> ingre_list = new ArrayList<>();
+	private static ArrayList<ImageVO> img_list = new ArrayList<>();
 
 	private CosmeticDAOImple() {
 		try {
@@ -124,9 +127,35 @@ public class CosmeticDAOImple implements CosmeticDAO, OracleQuary {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	@Override
+	public int count_Cosmetic() {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int count = 0;
+		
+		try {
+			conn = DriverManager.getConnection(URL, USER, PASSWD);
+			pstmt = conn.prepareStatement(COUNT_COSMETIC);
+
+			rs = pstmt.executeQuery();
+
+			rs.next();
+			count = rs.getInt(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, pstmt, rs);
+		}
+		
+		return count;
+	}
+
 
 	@Override
-	public CosmeticVO select_Cos(String name) {
+	public ArrayList<CosmeticVO> select_Cos(String name) {
 		cvo = null;
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -134,18 +163,19 @@ public class CosmeticDAOImple implements CosmeticDAO, OracleQuary {
 
 		try {
 			conn = DriverManager.getConnection(URL, USER, PASSWD);
-			pstmt = conn.prepareStatement(SELECT_COS);
+			pstmt = conn.prepareStatement(SELECT_COSMETIC);
 
 			pstmt.setString(1, "%" + name + "%");
 			rs = pstmt.executeQuery();
 
-			if (rs.next()) {
+			while(rs.next()) {
 				String cos_name = rs.getString(1);
 				String cos_com = rs.getString(2);
 				String cos_cate = rs.getString(3);
 				String cos_ingre = rs.getString(4);
 
 				cvo = new CosmeticVO(cos_name, cos_com, cos_cate, cos_ingre);
+				cos_list.add(cvo);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -154,11 +184,77 @@ public class CosmeticDAOImple implements CosmeticDAO, OracleQuary {
 			closeResources(conn, pstmt, rs);
 		}
 
-		return cvo;
+		return cos_list;
+	}
+	
+	@Override
+	public ArrayList<CosmeticVO> select_Com(String name) {
+		cvo = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			conn = DriverManager.getConnection(URL, USER, PASSWD);
+			pstmt = conn.prepareStatement(SELECT_COMPANY);
+
+			pstmt.setString(1, "%" + name + "%");
+			rs = pstmt.executeQuery();
+
+			while(rs.next()) {
+				String cos_name = rs.getString(1);
+				String cos_com = rs.getString(2);
+				String cos_cate = rs.getString(3);
+				String cos_ingre = rs.getString(4);
+
+				cvo = new CosmeticVO(cos_name, cos_com, cos_cate, cos_ingre);
+				cos_list.add(cvo);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, pstmt, rs);
+		}
+
+		return cos_list;
+	}
+	
+	@Override
+	public ArrayList<CosmeticVO> select_Cate(String name) {
+		cvo = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			conn = DriverManager.getConnection(URL, USER, PASSWD);
+			pstmt = conn.prepareStatement(SELECT_CATEGORY);
+
+			pstmt.setString(1, "%" + name + "%");
+			rs = pstmt.executeQuery();
+
+			while(rs.next()) {
+				String cos_name = rs.getString(1);
+				String cos_com = rs.getString(2);
+				String cos_cate = rs.getString(3);
+				String cos_ingre = rs.getString(4);
+
+				cvo = new CosmeticVO(cos_name, cos_com, cos_cate, cos_ingre);
+				cos_list.add(cvo);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, pstmt, rs);
+		}
+
+		return cos_list;
 	}
 
 	@Override
-	public BufferedImage select_cosImge(String name) throws Exception {
+	public ArrayList<ImageVO> select_cosImge(String name) throws Exception {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -170,10 +266,12 @@ public class CosmeticDAOImple implements CosmeticDAO, OracleQuary {
 			pstmt.setString(1, "%" + name + "%");
 			rs = pstmt.executeQuery();
 
-			if (rs.next()) {
-				String cos_name = rs.getString(1);
+			while (rs.next()) {
+				String cosmetic = rs.getString(1);
 				InputStream in = rs.getBinaryStream(3);
 				bi = ImageIO.read(in);
+				imvo = new ImageVO(cosmetic, bi);
+				img_list.add(imvo);
 				in.close();
 			}
 		} catch (SQLException e) {
@@ -182,7 +280,7 @@ public class CosmeticDAOImple implements CosmeticDAO, OracleQuary {
 		} finally {
 			closeResources(conn, pstmt, rs);
 		}
-		return bi;
+		return img_list;
 	}
 
 	@Override
@@ -197,36 +295,30 @@ public class CosmeticDAOImple implements CosmeticDAO, OracleQuary {
 			pstmt = conn.prepareStatement(SELECT_INGRE);
 
 			for(int i = 0; i < ingre.length; i++){
-				System.out.println(ingre[i]);
-				pstmt.setString(1, "%" + ingre[i] + "%");
+				pstmt.setString(1, ingre[i]);
+				pstmt.setString(2, "%" + ingre[i] + "%");
 				rs = pstmt.executeQuery();
-			}
-			
-			while (rs.next()) {
-				String name = rs.getString(1);
-				int ewg = rs.getInt(2);
-				String func = rs.getString(3);
-				String use = rs.getString(4);
-				String effect = rs.getString(5);
-				String type = rs.getString(6);
-				int top20 = rs.getInt(7);
-				
-				IngredientsVO ivo = new IngredientsVO(name,ewg,func,use,effect,type,top20);
-				list.add(ivo);
+
+				while (rs.next()) {
+					String name = rs.getString(1);
+					int ewg = rs.getInt(2);
+					String func = rs.getString(3);
+					String use = rs.getString(4);
+					String effect = rs.getString(5);
+					String type = rs.getString(6);
+					int top20 = rs.getInt(7);
+					
+					IngredientsVO ivo = new IngredientsVO(name,ewg,func,use,effect,type,top20);
+					ingre_list.add(ivo);
+				}		
 			}		
-			
-			for(int i  =0 ; i < list.size(); i++){
-				System.out.println(list.get(i));
-			}
-			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, pstmt, rs);
 		}
-		System.out.println(list.size());
-		return list;	
+		
+		return ingre_list;	
 	}
-
 }

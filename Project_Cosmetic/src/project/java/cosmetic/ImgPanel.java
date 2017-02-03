@@ -30,7 +30,12 @@ public class ImgPanel extends JPanel {
 	}
 	
 	public void setImage2(BufferedImage bi) throws IOException {
-		reBi = createResized(bi,290,393,true);
+		reBi = createResized(bi,300,393,true);
+	}
+	
+	public BufferedImage setImage3(BufferedImage bi) throws IOException {
+		reBi = createResized(bi,50,50,true);
+		return reBi;
 	}
 	
 	public BufferedImage createResized(Image origin, int width, int height, boolean alpha){

@@ -80,8 +80,16 @@ public class IngredientsVO {
 	
 	@Override
 	public String toString() {
-		return "☆ 성분 명 : " + ingre + "\n☆ EWG 등급 : " + ewg + "\n☆ 기능 : " + function 
-				 + "\n☆ 사용 품목 : " + use  + "\n☆ 부작용 : " + effect;
+		String result;
+		if(function == null){
+			result = "☆ 성분 명 : " + ingre + "\n     EWG 등급 : " + ewg + "\n   사용 품목 : " + use  + "\n    부작용 : " + effect;
+		} else if (use == null){
+			result = "☆ 성분 명 : " + ingre + "\n     EWG 등급 : " + ewg + "\n    기능 : " + function + "\n    부작용 : " + effect;
+		} else{
+			result = "☆ 성분 명 : " + ingre + "\n     EWG 등급 : " + ewg + "\n    기능 : " + function 
+			 + "\n    사용 품목 : " + use  + "\n    부작용 : " + effect;
+		}
+		return result;
 	}
 		
 }
