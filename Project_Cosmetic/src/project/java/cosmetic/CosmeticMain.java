@@ -64,7 +64,7 @@ public class CosmeticMain implements ActionListener {
 	private ImgPanel select_ImgPanel = new ImgPanel();
 	private ImgPanel insert_ImgPanel = new ImgPanel();
 
-	private JButton l_Button[];
+	private JButton[] l_Button;
 	private JRadioButton check_Cos = new JRadioButton("화장품명");
 	private JRadioButton check_Com = new JRadioButton("회사명");
 	private JRadioButton check_Cate = new JRadioButton("카테고리");
@@ -348,8 +348,8 @@ public class CosmeticMain implements ActionListener {
 		file_Btn.setBounds(520, 27, 113, 28);
 		insertPanel.add(file_Btn);
 
-		// insert_ImgPanel.setBackground(c_panel);
-		insert_ImgPanel.setBorder(new LineBorder(c_panel));
+		insert_ImgPanel.setBackground(c_panel);
+		//insert_ImgPanel.setBorder(new LineBorder(c_panel));
 		insert_ImgPanel.setBounds(30, 121, 290, 393);
 		insertPanel.add(insert_ImgPanel);
 
@@ -421,55 +421,6 @@ public class CosmeticMain implements ActionListener {
 		tPane.setBackground(c_panel);
 	}
 
-	private String findImage() {
-
-		JFileChooser fc = new JFileChooser();
-		int result = fc.showOpenDialog(frame);
-		if (result == JFileChooser.APPROVE_OPTION) {
-			path = fc.getSelectedFile().getPath();
-			fileName = fc.getSelectedFile().getName();
-		}
-
-		return path;
-	}
-
-	private void insertCos() {
-		String name = cos_Name.getText();
-		String company = cos_Com.getText();
-		String category = cos_Cate.getText();
-		String ingredients = cos_Ingre.getText();
-
-		if (!name.equals("") && !company.equals("") && !category.equals("") && !ingredients.equals("")) {
-			cvo = new CosmeticVO(name, company, category, ingredients);
-			System.out.println(cvo);
-		} else {
-			JOptionPane.showConfirmDialog(frame, "등록 실패!", "확인메세지", 3);
-			System.out.println("등록 실패");
-		}
-
-		int result1 = dao.insert_Cos(cvo);
-		int result2 = 0;
-		try {
-			result2 = dao.insert_CosImge(cvo, path, fileName);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		if (result1 <= 0 && result2 <= 0) {
-			JOptionPane.showConfirmDialog(frame, "등록 실패!", "확인메세지", 3);
-			System.out.println("등록 실패");
-		} else {
-			JOptionPane.showMessageDialog(frame, "등록 성공!", "확인메세지", 1);
-			System.out.println("등록 성공!");
-		}
-		clearInsertPane();
-	}
-
-	private void showImage() {
-		insert_ImgPanel.setImage(path);
-	}
-
 	private void showResultPanel() {
 		resultPanel.setVisible(true);
 	}
@@ -508,7 +459,6 @@ public class CosmeticMain implements ActionListener {
 			select_ImgPanel.setImage2(bi);
 			select_ImgPanel.repaint();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -539,6 +489,7 @@ public class CosmeticMain implements ActionListener {
 	}
 
 	private void showCos_set() {
+		lPane.removeAll();
 		for (int i = 0; i < cos_list.size(); i++) {
 			cvo = cos_list.get(i);
 			if (check_Com.isSelected() == true) {
@@ -666,15 +617,70 @@ public class CosmeticMain implements ActionListener {
 			result_h_ingre.setText("");
 		}
 	}
+	
+	/////////////////////////////////// 등록 메소드////////////////////////////////////////
+	
+	private String findImage() {
+
+		JFileChooser fc = new JFileChooser();
+		int result = fc.showOpenDialog(frame);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			path = fc.getSelectedFile().getPath();
+			fileName = fc.getSelectedFile().getName();
+		}
+
+		return path;
+	}
+
+	private void insertCos() {
+		String name = cos_Name.getText();
+		String company = cos_Com.getText();
+		String category = cos_Cate.getText();
+		String ingredients = cos_Ingre.getText();
+
+		if (!name.equals("") && !company.equals("") && !category.equals("") && !ingredients.equals("")) {
+			cvo = new CosmeticVO(name, company, category, ingredients);
+			System.out.println(cvo);
+		} else {
+			JOptionPane.showConfirmDialog(frame, "등록 실패!", "확인메세지", 3);
+			System.out.println("등록 실패");
+		}
+
+		int result1 = dao.insert_Cos(cvo);
+		int result2 = 0;
+		try {
+			result2 = dao.insert_CosImge(cvo, path, fileName);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (result1 <= 0 && result2 <= 0) {
+			JOptionPane.showConfirmDialog(frame, "등록 실패!", "확인메세지", 3);
+			System.out.println("등록 실패");
+		} else {
+			JOptionPane.showMessageDialog(frame, "등록 성공!", "확인메세지", 1);
+			System.out.println("등록 성공!");
+		}
+		clearInsertPane();
+	}
+
+	private void showImage() {
+		insert_ImgPanel.setImage(path);
+	}
+	
+	/////////////////////////////// 초기화 메소드 ///////////////////////////////
 
 	private void clearSelectPane() {
 		cos_list.clear();
 		ingre_list.clear();
 		img_list.clear();
+		
 		cos_names.clear();
 		cosmetics.clear();
 		cos_coms.clear();
 		cos_cates.clear();
+		
 		clist.clear();
 		hlist.clear();
 		alist.clear();
