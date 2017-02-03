@@ -6,6 +6,9 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.GridLayout;
 
 import java.util.ArrayList;
 
@@ -23,11 +26,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.border.LineBorder;
 import javax.swing.JScrollPane;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import javax.swing.JRadioButton;
 
-import java.awt.GridLayout;
 
 public class CosmeticMain implements ActionListener {
 
@@ -89,7 +89,8 @@ public class CosmeticMain implements ActionListener {
 	public String path = null;
 	public String fileName = null;
 	public String image = null;
-
+	private String cosmetic = null;
+	private int index = 0;
 	private int count = 0;
 	private String buttonText = null;
 	private BufferedImage bi = null;
@@ -152,6 +153,7 @@ public class CosmeticMain implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				check_Com.setSelected(false);
 				check_Cate.setSelected(false);
+				listPanel.setVisible(false);
 			}
 		});
 
@@ -163,6 +165,7 @@ public class CosmeticMain implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				check_Cos.setSelected(false);
 				check_Cate.setSelected(false);
+				listPanel.setVisible(false);
 			}
 		});
 
@@ -174,6 +177,7 @@ public class CosmeticMain implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				check_Cos.setSelected(false);
 				check_Com.setSelected(false);
+				listPanel.setVisible(false);
 			}
 		});
 
@@ -185,7 +189,7 @@ public class CosmeticMain implements ActionListener {
 		JButton find_Btn = new JButton("검 색");
 		find_Btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+			
 				count = dao.count_Cosmetic();
 				l_Button = new JButton[count];
 				clearSelectPane();
@@ -194,17 +198,16 @@ public class CosmeticMain implements ActionListener {
 				getCosList(findText);
 
 				if (cos_list.size() == 1) {
-					listPanel.setVisible(false);
 					cvo = cos_list.get(0);
 					showResultPanel();
-					showCos(cvo);
+					showCos();
+					showCosImg(cosmetic, index);
 					showIngre(cvo);
-
 				} else {
+					listPanel.setVisible(true);
 					resultPanel.setVisible(false);
 					getCos_Set();
 					showListPanel();
-					System.out.println(count);
 				}
 
 			}
@@ -218,6 +221,7 @@ public class CosmeticMain implements ActionListener {
 		listPanel.setBounds(0, 65, 761, 545);
 		selectPanel.add(listPanel);
 		listPanel.setLayout(null);
+		listPanel.setVisible(false);
 
 		JTextArea result_set = new JTextArea();
 		result_set.setBounds(26, 10, 109, 29);
@@ -317,7 +321,7 @@ public class CosmeticMain implements ActionListener {
 		result_h_ingre.setBackground(c_panel);
 		result_h_ingre.setLineWrap(true);
 
-		////////////////////////////////////////////////////////// 등록/////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////// 등록 UI /////////////////////////////////////////////////////
 
 		JPanel insertPanel = new JPanel();
 		insertPanel.setBackground(c_panel);
@@ -440,20 +444,20 @@ public class CosmeticMain implements ActionListener {
 
 	}
 
-	private void showCos(CosmeticVO cvo) {
-		String cosmetic = cvo.getCos_Name();
+	private void showCos() {
+		cosmetic = cvo.getCos_Name();
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(cvo);
 		result_Cos.setText(buffer.toString());
-		showCosImg(cosmetic);
+		index = 0;
 	}
 
-	private void showCosImg(String cosmetic) {
+	private void showCosImg(String cosmetic, int index) {
 		try {
 			img_list.clear();
 			img_list = dao.select_cosImge(cosmetic);
 			System.out.println(img_list);
-			imvo = img_list.get(0);
+			imvo = img_list.get(index);
 			bi = imvo.getImg();
 			select_ImgPanel.bi = bi;
 			select_ImgPanel.setImage2(bi);
@@ -507,8 +511,10 @@ public class CosmeticMain implements ActionListener {
 			Image ori = img.getImage();
 			Image resize = ori.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
 			img = new ImageIcon(resize);
-
+			
+			String index = String.valueOf(i);
 			l_Button[i].setIcon(img);
+			l_Button[i].setName(index);
 			l_Button[i].setText(buttonText);
 			l_Button[i].setHorizontalAlignment(SwingConstants.LEFT);
 			l_Button[i].setBackground(c_panel);
@@ -530,7 +536,9 @@ public class CosmeticMain implements ActionListener {
 		cos_list2 = dao.select_Cos(cos);
 		cvo = cos_list2.get(0);
 		showResultPanel();
-		showCos(cvo);
+		showCos();
+		index = Integer.valueOf(b.getName());
+		showCosImg(cos, index);
 		showIngre(cvo);
 	}
 
